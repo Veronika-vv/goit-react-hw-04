@@ -1,0 +1,34 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #00000078;
+  overflow: hidden;
+}
+
+.wrap {
+  position: absolute;
+  bottom: 40px;
+  left: 25px;
+  padding: 5px;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.1);
+  max-width: 95%;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: transparent;
+  border: none;
+  transition: color 0.4s ease;
+}
+
+.closeBtn:hover,
+.closeBtn:focus {
+  color: #32a1ce;
+}
