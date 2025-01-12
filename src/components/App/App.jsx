@@ -7,39 +7,47 @@ import ImageModal from "../ImageModal/ImageModal";
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 import Loader from "../Loader/Loader";
 import toast, { Toaster } from "react-hot-toast";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 function App() {
   const [query, setQuery] = useState("");
   const [images, setImages] = useState([]);
-  const [totalPages, setToralPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
   const [modalImg, setModalImg] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [loader, setLoader] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!query) return;
     setLoader(true);
+    setError("");
     fetchImages(query, page)
       .then(({ data }) => {
-        setImages((prevImages) => [...prevImages, ...data.results]);
-        setToralPages(data.total_pages);
         if (!data.results.length) {
-          toast.error(`Nothing was found for the word "${query}"`);
+          setError(`Nothing was found for the word "${query}"`);
+          return;
         }
+        setImages((prevImages) => [...prevImages, ...data.results]);
+        setTotalPages(data.total_pages);
       })
       .catch(() => {
-        toast.error("Oops, something went wrong, try reloading the page");
+        setError("Oops, something went wrong. Please try reloading the page.");
       })
       .finally(() => setLoader(false));
   }, [query, page]);
 
   const onSearch = (query) => {
-    if (!query) toast.error("Enter the word");
+    if (!query.trim()) {
+      toast.error("Enter the word");
+      return;
+    }
     setQuery(query);
     setImages([]);
-    setToralPages(0);
+    setTotalPages(0);
     setPage(1);
+    setError("");
   };
 
   const openCloseModal = () => {
@@ -61,11 +69,17 @@ function App() {
     <>
       <SearchBar handleSearch={onSearch} />
       <Toaster position="top-right" />
-      <ImageGallery images={images} handleOpenModel={handleOpenModel} />
-      {loader && <Loader />}
-      {visibleBtnMore() && <LoadMoreBtn onLoadMore={onLoadMore} />}
-      {openModal && (
-        <ImageModal openCloseModal={openCloseModal} modalImg={modalImg} />
+      {error ? (
+        <ErrorMessage message={error} />
+      ) : (
+        <>
+          <ImageGallery images={images} handleOpenModel={handleOpenModel} />
+          {loader && <Loader />}
+          {visibleBtnMore() && <LoadMoreBtn onLoadMore={onLoadMore} />}
+          {openModal && (
+            <ImageModal openCloseModal={openCloseModal} modalImg={modalImg} />
+          )}
+        </>
       )}
     </>
   );
